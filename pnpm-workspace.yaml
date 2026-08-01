@@ -1,0 +1,11 @@
+packages:
+  - 'packages/*'
+  - 'apps/*'
+  - 'tools/*'
+
+# tsup y vitest dependen de esbuild, que necesita ejecutar su script de
+# postinstall (descarga el binario nativo de la plataforma). pnpm 10
+# bloquea scripts de instalación de dependencias por defecto; lo
+# autorizamos explícitamente en vez de aprobarlo a mano en cada máquina.
+onlyBuiltDependencies:
+  - esbuild

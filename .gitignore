@@ -1,0 +1,23 @@
+# dependencies
+node_modules
+.pnpm-store
+
+# build output
+dist
+*.tsbuildinfo
+
+# Next.js (apps/studio)
+.next
+next-env.d.ts
+
+# tests
+coverage
+
+# env
+.env
+.env.*
+!.env.example
+
+# os / editor
+.DS_Store
+*.log

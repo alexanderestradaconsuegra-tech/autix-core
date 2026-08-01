@@ -1,0 +1,28 @@
+{
+  "name": "@autix/campolac-connector",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Connector real de Campolac (RFC-000 §7/§22) — un proceso HTTP fuera del Core que expone Tools sobre el Postgres real de Campolac OS.",
+  "type": "module",
+  "license": "UNLICENSED",
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "start": "node dist/index.js",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "clean": "rm -rf dist *.tsbuildinfo"
+  },
+  "dependencies": {
+    "fastify": "^5.10.0",
+    "pg": "^8.22.0"
+  },
+  "devDependencies": {
+    "@autix/tsconfig": "workspace:*",
+    "@types/pg": "^8.20.0"
+  }
+}

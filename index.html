@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Autix v1.0 - Centro de Control</title>
+  <style>
+    :root {
+      --primary: #0ea5e9;
+      --dark: #0c1a2e;
+      --success: #10b981;
+      --danger: #ef4444;
+      --border: #e5e7eb;
+      --bg-light: #f9fafb;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg-light);
+      color: #1f2937;
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    header {
+      background: var(--dark);
+      color: white;
+      padding: 30px 20px;
+      margin-bottom: 30px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    header h1 { font-size: 28px; margin-bottom: 10px; }
+    header p { opacity: 0.9; font-size: 14px; }
+
+    .status {
+      display: flex;
+      gap: 20px;
+      margin-top: 15px;
+      font-size: 13px;
+    }
+
+    .status-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #ef4444;
+    }
+
+    .status-dot.ok { background: #10b981; }
+
+    .main {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .panel {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+
+    .panel h2 {
+      font-size: 18px;
+      margin-bottom: 15px;
+      color: var(--dark);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    input, textarea, select {
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 13px;
+      font-family: inherit;
+    }
+
+    input:focus, textarea:focus, select:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(14,165,233,0.1);
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 80px;
+      font-family: 'Monaco', 'Courier New', monospace;
+      font-size: 12px;
+    }
+
+    button {
+      padding: 12px 16px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    button:hover { background: #0284c7; }
+    button:disabled { background: #cbd5e1; cursor: not-allowed; }
+
+    .btn-secondary {
+      background: #6b7280;
+    }
+
+    .btn-secondary:hover { background: #4b5563; }
+
+    .btn-danger {
+      background: var(--danger);
+    }
+
+    .btn-danger:hover { background: #dc2626; }
+
+    .btn-success {
+      background: var(--success);
+    }
+
+    .btn-success:hover { background: #059669; }
+
+    .list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .item {
+      background: var(--bg-light);
+      padding: 12px;
+      border-radius: 6px;
+      border-left: 3px solid var(--primary);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+    }
+
+    .item.success { border-left-color: var(--success); }
+    .item.error { border-left-color: var(--danger); }
+
+    .item-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .item-actions button {
+      padding: 6px 12px;
+      font-size: 12px;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal.show { display: flex; }
+
+    .modal-content {
+      background: white;
+      border-radius: 8px;
+      padding: 30px;
+      max-width: 500px;
+      width: 100%;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    }
+
+    .modal-content h3 {
+      margin-bottom: 20px;
+      font-size: 20px;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+      justify-content: flex-end;
+    }
+
+    .alert {
+      padding: 12px 16px;
+      border-radius: 6px;
+      font-size: 13px;
+      margin-bottom: 15px;
+    }
+
+    .alert-success { background: #d1fae5; color: #065f46; }
+    .alert-error { background: #fee2e2; color: #991b1b; }
+    .alert-info { background: #dbeafe; color: #0c2340; }
+
+    .loading {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border: 2px solid #e5e7eb;
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    @media (max-width: 768px) {
+      .main { grid-template-columns: 1fr; }
+      header h1 { font-size: 20px; }
+      .status { flex-direction: column; gap: 10px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>🤖 Autix v1.0 - Centro de Control</h1>
+      <p>Runtime de Ejecución de Workflows con Resolución de Variables</p>
+      <div class="status">
+        <div class="status-item">
+          <span class="status-dot" id="core-status"></span>
+          <span>Core Server: <strong id="core-text">Verificando...</strong></span>
+        </div>
+        <div class="status-item">
+          <span class="status-dot" id="connector-status"></span>
+          <span>Campolac Connector: <strong id="connector-text">Verificando...</strong></span>
+        </div>
+      </div>
+    </header>
+
+    <div id="alerts"></div>
+
+    <div class="main">
+      <!-- Panel: Crear Agente -->
+      <div class="panel">
+        <h2>➕ Crear Agente</h2>
+        <form id="agentForm">
+          <input type="text" placeholder="Nombre del agente" id="agentName" required>
+          <input type="text" placeholder="Modelo (ej: gpt-4)" id="agentModel" required>
+          <input type="text" placeholder="Descripción (opcional)" id="agentDesc">
+          <textarea placeholder="Capacidades (separadas por comas)" id="agentCaps"></textarea>
+          <button type="submit">Crear Agente</button>
+        </form>
+      </div>
+
+      <!-- Panel: Crear Workflow -->
+      <div class="panel">
+        <h2>⚙️ Crear Workflow</h2>
+        <form id="workflowForm">
+          <input type="text" placeholder="Nombre del workflow" id="workflowName" required>
+          <input type="text" placeholder="Descripción (opcional)" id="workflowDesc">
+          <textarea placeholder="Steps (JSON)" id="workflowSteps" required>[
+  {
+    "id": "step-1",
+    "displayName": "Buscar Cliente",
+    "toolId": "campolac.clientes.buscar",
+    "connectorId": "campolac-connector",
+    "input": {"criterio": "test"},
+    "dependsOn": []
+  }
+]</textarea>
+          <button type="submit">Crear Workflow</button>
+        </form>
+      </div>
+    </div>
+
+    <div class="main">
+      <!-- Panel: Ejecutar Workflow -->
+      <div class="panel">
+        <h2>▶️ Ejecutar Workflow</h2>
+        <form id="executeForm">
+          <input type="text" placeholder="Workflow ID" id="executeWorkflowId" required>
+          <button type="submit">Ejecutar</button>
+        </form>
+        <div id="executionResult" style="margin-top: 20px;"></div>
+      </div>
+
+      <!-- Panel: Listado de Workflows -->
+      <div class="panel">
+        <h2>📋 Workflows Activos</h2>
+        <button onclick="loadWorkflows()" style="margin-bottom: 15px;">Recargar</button>
+        <div class="list" id="workflowsList"></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>📊 Últimas Ejecuciones</h2>
+      <button onclick="loadExecutions()" style="margin-bottom: 15px;">Recargar</button>
+      <div class="list" id="executionsList"></div>
+    </div>
+  </div>
+
+  <script>
+    const API = 'http://localhost:4000';
+    const TENANT = 'default';
+    let TOKEN = null;
+
+    // Crear token JWT simple para testing
+    function createTestToken() {
+      const header = btoa(JSON.stringify({alg:'HS256',typ:'JWT'})).replace(/=/g,'');
+      const payload = btoa(JSON.stringify({
+        sub: 'test-user',
+        tenant_id: TENANT,
+        iat: Math.floor(Date.now()/1000),
+        exp: Math.floor(Date.now()/1000) + 3600
+      })).replace(/=/g,'');
+      return `${header}.${payload}.fake`;
+    }
+
+    // API fetch helper
+    async function api(method, path, body = null) {
+      try {
+        const options = {
+          method,
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${TOKEN}`
+          }
+        };
+        if (body) options.body = JSON.stringify(body);
+
+        const res = await fetch(`${API}${path}`, options);
+        const data = await res.json();
+
+        if (!res.ok) {
+          showAlert(`Error: ${data.error || res.statusText}`, 'error');
+          return null;
+        }
+        return data;
+      } catch(e) {
+        showAlert(`Error de conexión: ${e.message}`, 'error');
+        return null;
+      }
+    }
+
+    // UI helpers
+    function showAlert(msg, type = 'info') {
+      const alerts = document.getElementById('alerts');
+      const el = document.createElement('div');
+      el.className = `alert alert-${type}`;
+      el.textContent = msg;
+      alerts.appendChild(el);
+      setTimeout(() => el.remove(), 5000);
+    }
+
+    // Status checks
+    async function checkStatus() {
+      try {
+        const core = await fetch(`${API}/health`).then(r => r.json());
+        document.getElementById('core-status').classList.add('ok');
+        document.getElementById('core-text').textContent = 'Activo';
+      } catch {
+        document.getElementById('core-text').textContent = 'Inactivo';
+      }
+
+      try {
+        const connector = await fetch('http://localhost:4200/healthz').then(r => r.json());
+        document.getElementById('connector-status').classList.add('ok');
+        document.getElementById('connector-text').textContent = 'Activo';
+      } catch {
+        document.getElementById('connector-text').textContent = 'Inactivo';
+      }
+    }
+
+    // Forms
+    document.getElementById('agentForm').onsubmit = async (e) => {
+      e.preventDefault();
+      const data = {
+        name: document.getElementById('agentName').value,
+        model: document.getElementById('agentModel').value,
+        description: document.getElementById('agentDesc').value,
+        capabilities: document.getElementById('agentCaps').value.split(',').map(s => s.trim()).filter(Boolean)
+      };
+
+      const res = await api('POST', '/v1/agents', data);
+      if (res) {
+        showAlert(`✅ Agente "${res.name}" creado (ID: ${res.id})`, 'success');
+        e.target.reset();
+      }
+    };
+
+    document.getElementById('workflowForm').onsubmit = async (e) => {
+      e.preventDefault();
+      try {
+        const steps = JSON.parse(document.getElementById('workflowSteps').value);
+        const data = {
+          name: document.getElementById('workflowName').value,
+          description: document.getElementById('workflowDesc').value,
+          steps
+        };
+
+        const res = await api('POST', '/v1/workflows', data);
+        if (res) {
+          showAlert(`✅ Workflow "${res.name}" creado (ID: ${res.id})`, 'success');
+          e.target.reset();
+          loadWorkflows();
+        }
+      } catch(e) {
+        showAlert(`Error en JSON: ${e.message}`, 'error');
+      }
+    };
+
+    document.getElementById('executeForm').onsubmit = async (e) => {
+      e.preventDefault();
+      const workflowId = document.getElementById('executeWorkflowId').value;
+
+      const result = document.getElementById('executionResult');
+      result.innerHTML = '<div class="loading"></div> Ejecutando...';
+
+      const res = await api('POST', `/v1/workflows/${workflowId}/execute`, {});
+      if (res) {
+        result.innerHTML = `
+          <div class="item success">
+            <div>
+              <strong>Ejecución: ${res.executionId}</strong><br>
+              Estado: ${res.status}
+            </div>
+          </div>
+          <pre style="background: #f3f4f6; padding: 10px; border-radius: 4px; font-size: 11px; overflow-x: auto; margin-top: 10px;">${JSON.stringify(res, null, 2)}</pre>
+        `;
+      }
+    };
+
+    async function loadWorkflows() {
+      const res = await api('GET', '/v1/workflows');
+      const list = document.getElementById('workflowsList');
+
+      if (!res || !res.workflows) {
+        list.innerHTML = '<div class="item">Sin workflows</div>';
+        return;
+      }
+
+      list.innerHTML = res.workflows.map(w => `
+        <div class="item">
+          <div>
+            <strong>${w.name}</strong><br>
+            <small>${w.description || 'Sin descripción'}</small>
+          </div>
+          <div class="item-actions">
+            <button class="btn-secondary" onclick="copyToExecute('${w.id}')">Ejecutar</button>
+            <button class="btn-danger" onclick="deleteWorkflow('${w.id}')">Eliminar</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    async function loadExecutions() {
+      const res = await api('GET', '/v1/workflows/default/executions');
+      const list = document.getElementById('executionsList');
+
+      if (!res || !res.executions) {
+        list.innerHTML = '<div class="item">Sin ejecuciones</div>';
+        return;
+      }
+
+      list.innerHTML = res.executions.slice(0, 10).map(e => `
+        <div class="item ${e.status === 'success' ? 'success' : e.status === 'failed' ? 'error' : ''}">
+          <div>
+            <strong>${e.id.slice(0, 8)}...</strong><br>
+            Estado: ${e.status} | ${new Date(e.created_at).toLocaleString()}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function copyToExecute(id) {
+      document.getElementById('executeWorkflowId').value = id;
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    async function deleteWorkflow(id) {
+      if (!confirm('¿Eliminar este workflow?')) return;
+      await api('DELETE', `/v1/workflows/${id}`);
+      showAlert('✅ Workflow eliminado', 'success');
+      loadWorkflows();
+    }
+
+    // Init
+    window.onload = () => {
+      TOKEN = createTestToken();
+      checkStatus();
+      loadWorkflows();
+      loadExecutions();
+    };
+  </script>
+</body>
+</html>
