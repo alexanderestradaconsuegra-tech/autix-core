@@ -10,7 +10,7 @@ COPY package*.json ./
 COPY pnpm-lock.yaml ./
 
 # Instalar deps
-RUN pnpm install --frozen-lockfile
+RUN pnpm install
 
 # Copiar código fuente
 COPY . .
@@ -34,7 +34,7 @@ COPY package*.json ./
 COPY pnpm-lock.yaml ./
 
 # Instalar deps en modo producción
-RUN pnpm install --prod --frozen-lockfile
+RUN pnpm install --prod
 
 # Copiar build del stage anterior
 COPY --from=builder /app/apps ./apps
