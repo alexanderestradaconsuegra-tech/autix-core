@@ -7,10 +7,10 @@ RUN npm install -g pnpm
 
 # Copiar package.json y lock
 COPY package*.json ./
-COPY pnpm-lock.yaml ./
+COPY pnpm-lock.yaml* ./
 
-# Instalar deps
-RUN pnpm install
+# Instalar deps (regenera lock si es necesario)
+RUN rm -f pnpm-lock.yaml && pnpm install
 
 # Copiar código fuente
 COPY . .
@@ -31,7 +31,6 @@ RUN npm install -g pnpm
 
 # Copiar package.json solo
 COPY package*.json ./
-COPY pnpm-lock.yaml ./
 
 # Instalar deps en modo producción
 RUN pnpm install --prod
