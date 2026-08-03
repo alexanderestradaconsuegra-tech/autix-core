@@ -2,16 +2,18 @@ FROM node:22-alpine AS builder
 
 WORKDIR /app
 
-# Copiar package.json
-COPY package*.json ./
+# Instalar pnpm
+RUN npm install -g pnpm
+
+# Copiar package.json (sin lock file corrupto)
+COPY package*.json pnpm-workspace.yaml ./
 COPY apps ./apps
 
-# Instalar deps globales
-RUN npm install -g tsup
+# Regenerar lockfile limpio
+RUN rm -f pnpm-lock.yaml && pnpm install --no-frozen-lockfile
 
-# Compilar cada app
-RUN cd apps/core-server && npm install && npm run build
-RUN cd apps/campolac-connector && npm install && npm run build
+# Compilar
+RUN pnpm build
 
 # Stage final - Runtime
 FROM node:22-alpine
@@ -21,8 +23,15 @@ WORKDIR /app
 # Instalar nginx, curl, supervisor
 RUN apk add --no-cache nginx curl supervisor
 
+# Instalar pnpm
+RUN npm install -g pnpm
+
 # Copiar package.json
-COPY package*.json ./
+COPY package*.json pnpm-workspace.yaml ./
+COPY apps ./apps
+
+# Instalar solo deps de producción
+RUN pnpm install --prod --no-frozen-lockfile
 
 # Copiar apps compilados del builder
 COPY --from=builder /app/apps ./apps
