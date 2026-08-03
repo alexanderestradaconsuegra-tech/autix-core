@@ -2,21 +2,17 @@ FROM node:22-alpine AS builder
 
 WORKDIR /app
 
-# Instalar pnpm
-RUN npm install -g pnpm
-
-# Copiar package.json y lock
+# Copiar package.json
 COPY package*.json ./
-COPY pnpm-lock.yaml* ./
 
-# Instalar deps (regenera lock si es necesario)
-RUN rm -f pnpm-lock.yaml && pnpm install
+# Instalar deps
+RUN npm install
 
 # Copiar código fuente
 COPY . .
 
 # Compilar TypeScript
-RUN pnpm build
+RUN npm run build
 
 # Stage final - Runtime
 FROM node:22-alpine
@@ -26,14 +22,11 @@ WORKDIR /app
 # Instalar nginx para servir el frontend
 RUN apk add --no-cache nginx curl supervisor
 
-# Copiar pnpm
-RUN npm install -g pnpm
-
 # Copiar package.json solo
 COPY package*.json ./
 
-# Instalar deps en modo producción
-RUN pnpm install --prod
+# Instalar deps en modo producción (solo dependencias de runtime)
+RUN npm install --production
 
 # Copiar build del stage anterior
 COPY --from=builder /app/apps ./apps
