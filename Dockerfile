@@ -32,9 +32,10 @@ COPY --from=builder /app/apps/campolac-connector/node_modules ./apps/campolac-co
 COPY --from=builder /app/node_modules ./node_modules
 
 # Copy configuration
-COPY nginx.conf /etc/nginx/conf.d/
-COPY supervisord.conf /etc/supervisor/conf.d/
-COPY index.html /usr/share/nginx/html/
+RUN rm -f /etc/nginx/conf.d/default.conf
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+COPY index.html /usr/share/nginx/html/index.html
 
 EXPOSE 80 4000 4200
 
