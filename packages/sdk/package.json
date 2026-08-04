@@ -1,0 +1,38 @@
+{
+  "name": "@autix/sdk",
+  "version": "0.0.0",
+  "private": true,
+  "description": "SDK cliente para que agentes y Connectors hablen con Autix Core. Aún sin implementar — placeholder de Sprint 1.",
+  "type": "module",
+  "license": "UNLICENSED",
+  "sideEffects": false,
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "clean": "rm -rf dist *.tsbuildinfo"
+  },
+  "dependencies": {
+    "@autix/core": "workspace:*"
+  },
+  "devDependencies": {
+    "@autix/tsconfig": "workspace:*"
+  }
+}

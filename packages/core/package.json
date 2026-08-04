@@ -1,0 +1,44 @@
+{
+  "name": "@autix/core",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Runtime de Autix Core (Discovery, AuthN/Z, Execution Engine, Registry). Aún sin implementar.",
+  "type": "module",
+  "license": "UNLICENSED",
+  "sideEffects": false,
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "clean": "rm -rf dist *.tsbuildinfo"
+  },
+  "dependencies": {
+    "@autix/contracts": "workspace:*",
+    "@autix/schemas": "workspace:*",
+    "jose": "^6.2.4"
+  },
+  "devDependencies": {
+    "@autix/tsconfig": "workspace:*",
+    "zod": "^4.4.3"
+  },
+  "peerDependencies": {
+    "zod": "^4.4.3"
+  }
+}

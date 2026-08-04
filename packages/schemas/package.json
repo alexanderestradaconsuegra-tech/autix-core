@@ -1,0 +1,40 @@
+{
+  "name": "@autix/schemas",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Canonical schemas de las Capabilities de Autix Core. Aún sin implementar — placeholder de Sprint 1.",
+  "type": "module",
+  "license": "UNLICENSED",
+  "sideEffects": false,
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "clean": "rm -rf dist *.tsbuildinfo"
+  },
+  "devDependencies": {
+    "@autix/tsconfig": "workspace:*"
+  },
+  "dependencies": {
+    "@autix/contracts": "workspace:*",
+    "ajv": "^8.20.0",
+    "zod": "^4.4.3"
+  }
+}

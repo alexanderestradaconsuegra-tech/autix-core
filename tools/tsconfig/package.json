@@ -1,0 +1,10 @@
+{
+  "name": "@autix/tsconfig",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Configuración base de TypeScript compartida por todos los paquetes de Autix Core.",
+  "license": "UNLICENSED",
+  "files": [
+    "base.json"
+  ]
+}

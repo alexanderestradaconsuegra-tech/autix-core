@@ -1,0 +1,42 @@
+{
+  "name": "@autix/cli",
+  "version": "0.0.0",
+  "private": true,
+  "description": "CLI de administración de Autix Core. Aún sin comandos reales — placeholder de Sprint 1.",
+  "type": "module",
+  "license": "UNLICENSED",
+  "sideEffects": false,
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "bin": {
+    "autix": "./dist/index.js"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "clean": "rm -rf dist *.tsbuildinfo"
+  },
+  "dependencies": {
+    "@autix/core": "workspace:*",
+    "@autix/sdk": "workspace:*"
+  },
+  "devDependencies": {
+    "@autix/tsconfig": "workspace:*"
+  }
+}
