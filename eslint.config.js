@@ -28,7 +28,7 @@ const ignores = [
  * parser de TypeScript.
  */
 const nextReactRules = nextCoreWebVitals[0];
-const nextApps = ['apps/whatsapp-catalog'];
+const nextApps = ['apps/vitrina'];
 
 export default tseslint.config(
   { ignores },
