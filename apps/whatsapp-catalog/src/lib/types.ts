@@ -7,6 +7,7 @@ export interface Business {
   logoUrl: string | null;
   welcomeMessage: string | null;
   isActive: boolean;
+  acceptsMercadopago: boolean;
 }
 
 export interface Category {

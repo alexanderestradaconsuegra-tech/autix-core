@@ -17,6 +17,10 @@ create table if not exists businesses (
   welcome_message   text,
   license_status    text not null default 'trial' check (license_status in ('trial', 'active', 'expired')),
   is_active         boolean not null default true,
+  -- Espejo público (sin secretos) de business_payment_settings.mercadopago_enabled,
+  -- para que la vista pública sepa si debe mostrar "Pagar con Mercado Pago"
+  -- sin poder leer el access token.
+  accepts_mercadopago boolean not null default false,
   created_at        timestamptz not null default now(),
   updated_at        timestamptz not null default now(),
   constraint slug_format check (slug ~ '^[a-z0-9]+(-[a-z0-9]+)*$'),
@@ -72,11 +76,31 @@ create table if not exists orders (
   customer_address  text,
   items             jsonb not null,   -- [{ productId, name, price, quantity }]
   total             numeric(12, 2) not null check (total >= 0),
-  status            text not null default 'sent' check (status in ('sent', 'confirmed', 'cancelled')),
+  status            text not null default 'sent' check (status in ('sent', 'confirmed', 'cancelled', 'paid')),
+  payment_method    text not null default 'whatsapp' check (payment_method in ('whatsapp', 'mercadopago')),
   created_at        timestamptz not null default now()
 );
 
 create index if not exists orders_business_id_idx on orders (business_id, created_at desc);
+
+-- ---------------------------------------------------------------------------
+-- business_payment_settings: credenciales de pago del negocio.
+--
+-- Vive en una tabla aparte (no en `businesses`) a propósito: `businesses`
+-- tiene una política de lectura pública para la vista /c/[slug], y esta
+-- tabla NO tiene ninguna política de SELECT pública — solo el dueño
+-- (RLS) o un route handler server-side con la service role key pueden
+-- leer el access token. Ver src/app/api/checkout/mercadopago/route.ts.
+--
+-- Producción: considera cifrar `mercadopago_access_token` con Supabase
+-- Vault (pgsodium) en vez de guardarlo en texto plano.
+-- ---------------------------------------------------------------------------
+create table if not exists business_payment_settings (
+  business_id               uuid primary key references businesses (id) on delete cascade,
+  mercadopago_access_token  text,
+  mercadopago_enabled       boolean not null default false,
+  updated_at                timestamptz not null default now()
+);
 
 -- ---------------------------------------------------------------------------
 -- updated_at automático
@@ -104,10 +128,11 @@ create trigger products_set_updated_at
 -- ---------------------------------------------------------------------------
 -- Row Level Security
 -- ---------------------------------------------------------------------------
-alter table businesses enable row level security;
-alter table categories enable row level security;
-alter table products   enable row level security;
-alter table orders     enable row level security;
+alter table businesses               enable row level security;
+alter table categories               enable row level security;
+alter table products                 enable row level security;
+alter table orders                   enable row level security;
+alter table business_payment_settings enable row level security;
 
 -- Lectura pública: solo negocios/categorías/productos activos y disponibles
 -- (usada por la vista pública /c/[slug] con la anon key).
@@ -163,3 +188,40 @@ create policy "owner_manage_own_products"
 create policy "owner_read_own_orders"
   on orders for select
   using (exists (select 1 from businesses b where b.id = orders.business_id and b.owner_id = auth.uid()));
+
+-- business_payment_settings: sin política pública. Solo el dueño (para
+-- editarla desde /admin) y la service role key (para el route handler de
+-- checkout) pueden leerla — la anon key jamás puede.
+create policy "owner_manage_own_payment_settings"
+  on business_payment_settings for all
+  using (exists (select 1 from businesses b where b.id = business_payment_settings.business_id and b.owner_id = auth.uid()))
+  with check (exists (select 1 from businesses b where b.id = business_payment_settings.business_id and b.owner_id = auth.uid()));
+
+-- ---------------------------------------------------------------------------
+-- Storage: bucket público de fotos de producto/logo. Los objetos se guardan
+-- bajo `{owner_id}/{business_id}/{uuid}.ext` — las políticas de INSERT/UPDATE/
+-- DELETE exigen que el primer segmento de la ruta sea el uid autenticado.
+-- ---------------------------------------------------------------------------
+insert into storage.buckets (id, name, public)
+values ('product-images', 'product-images', true)
+on conflict (id) do nothing;
+
+create policy "public_read_product_images"
+  on storage.objects for select
+  using (bucket_id = 'product-images');
+
+create policy "owner_upload_product_images"
+  on storage.objects for insert
+  with check (
+    bucket_id = 'product-images'
+    and auth.uid() is not null
+    and (storage.foldername(name))[1] = auth.uid()::text
+  );
+
+create policy "owner_update_product_images"
+  on storage.objects for update
+  using (bucket_id = 'product-images' and (storage.foldername(name))[1] = auth.uid()::text);
+
+create policy "owner_delete_product_images"
+  on storage.objects for delete
+  using (bucket_id = 'product-images' and (storage.foldername(name))[1] = auth.uid()::text);

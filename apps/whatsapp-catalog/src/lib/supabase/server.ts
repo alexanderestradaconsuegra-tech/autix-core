@@ -32,6 +32,7 @@ interface BusinessRow {
   logo_url: string | null;
   welcome_message: string | null;
   is_active: boolean;
+  accepts_mercadopago: boolean;
 }
 
 interface CategoryRow {
@@ -57,7 +58,7 @@ export async function getCatalogBySlug(slug: string): Promise<CatalogData | null
 
   const { data: businessRow, error: businessError } = await supabase
     .from('businesses')
-    .select('id, slug, name, phone, currency, logo_url, welcome_message, is_active')
+    .select('id, slug, name, phone, currency, logo_url, welcome_message, is_active, accepts_mercadopago')
     .eq('slug', slug)
     .eq('is_active', true)
     .maybeSingle()
@@ -100,6 +101,7 @@ export async function getCatalogBySlug(slug: string): Promise<CatalogData | null
     logoUrl: businessRow.logo_url,
     welcomeMessage: businessRow.welcome_message,
     isActive: businessRow.is_active,
+    acceptsMercadopago: businessRow.accepts_mercadopago,
   };
 
   const categories: Category[] = (categoriesResult.data ?? []).map((c) => ({

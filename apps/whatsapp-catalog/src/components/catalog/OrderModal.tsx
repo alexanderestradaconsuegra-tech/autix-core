@@ -13,20 +13,28 @@ export function OrderModal({ business, onClose }: { business: Business; onClose:
   const [name, setName] = useState('');
   const [address, setAddress] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [payingOnline, setPayingOnline] = useState(false);
+
+  function readCustomer(): { name: string; address: string } | null {
+    const trimmedName = name.trim();
+    if (trimmedName.length < 2) {
+      setError('Ingresa tu nombre completo.');
+      return null;
+    }
+    setError(null);
+    return { name: trimmedName, address: address.trim() };
+  }
 
   function handleSubmit(event: FormEvent) {
     event.preventDefault();
-
-    if (name.trim().length < 2) {
-      setError('Ingresa tu nombre completo.');
-      return;
-    }
+    const customer = readCustomer();
+    if (!customer) return;
 
     try {
       const url = buildWhatsappOrderUrl({
         phone: business.phone,
         businessName: business.name,
-        customer: { name: name.trim(), address: address.trim() },
+        customer,
         items,
         currency: business.currency,
       });
@@ -35,6 +43,40 @@ export function OrderModal({ business, onClose }: { business: Business; onClose:
       onClose();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'No pudimos generar el pedido.');
+    }
+  }
+
+  async function handleMercadopagoCheckout() {
+    const customer = readCustomer();
+    if (!customer) return;
+
+    setPayingOnline(true);
+    try {
+      const response = await fetch('/api/checkout/mercadopago', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          slug: business.slug,
+          customer,
+          items: items.map((item) => ({
+            productId: item.productId,
+            name: item.name,
+            price: item.price,
+            quantity: item.quantity,
+          })),
+        }),
+      });
+
+      const data = (await response.json()) as { initPoint?: string; error?: string };
+      if (!response.ok || !data.initPoint) {
+        throw new Error(data.error ?? 'No pudimos iniciar el pago.');
+      }
+
+      clearCart();
+      window.location.href = data.initPoint;
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'No pudimos iniciar el pago con Mercado Pago.');
+      setPayingOnline(false);
     }
   }
 
@@ -88,6 +130,17 @@ export function OrderModal({ business, onClose }: { business: Business; onClose:
         >
           Confirmar y enviar por WhatsApp
         </button>
+
+        {business.acceptsMercadopago ? (
+          <button
+            type="button"
+            disabled={payingOnline}
+            onClick={() => void handleMercadopagoCheckout()}
+            className="mt-2 w-full rounded-xl border border-neutral-200 py-3 text-sm font-semibold text-neutral-700 disabled:opacity-60"
+          >
+            {payingOnline ? 'Redirigiendo a Mercado Pago...' : 'Pagar en línea con Mercado Pago'}
+          </button>
+        ) : null}
       </form>
     </div>
   );
