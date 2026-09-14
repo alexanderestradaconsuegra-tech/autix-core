@@ -18,19 +18,23 @@ export function CategoryFilter({
       <button
         type="button"
         onClick={() => onSelect(null)}
-        className={`shrink-0 rounded-full px-3.5 py-1.5 text-xs font-medium ${
-          selected === null ? 'bg-neutral-900 text-white' : 'bg-neutral-100 text-neutral-600'
+        className={`shrink-0 rounded-full px-4 py-2 text-xs font-semibold transition-colors ${
+          selected === null
+            ? 'bg-emerald-600 text-white shadow-sm shadow-emerald-900/20'
+            : 'border border-neutral-200 bg-white text-neutral-600'
         }`}
       >
-        Todos
+        Todo
       </button>
       {categories.map((category) => (
         <button
           key={category.id}
           type="button"
           onClick={() => onSelect(category.id)}
-          className={`shrink-0 rounded-full px-3.5 py-1.5 text-xs font-medium ${
-            selected === category.id ? 'bg-neutral-900 text-white' : 'bg-neutral-100 text-neutral-600'
+          className={`shrink-0 rounded-full px-4 py-2 text-xs font-semibold transition-colors ${
+            selected === category.id
+              ? 'bg-emerald-600 text-white shadow-sm shadow-emerald-900/20'
+              : 'border border-neutral-200 bg-white text-neutral-600'
           }`}
         >
           {category.name}
