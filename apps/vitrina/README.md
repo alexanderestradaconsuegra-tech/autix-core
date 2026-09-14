@@ -69,6 +69,13 @@ apps/vitrina/
 - **Dirección + radio de entrega**: el dueño ingresa su dirección y `/api/geocode` la geocodifica con
   Google Maps Geocoding API (server-side, `GOOGLE_MAPS_API_KEY`) para guardar lat/lng. El radio en km
   se muestra en el catálogo como "Entrega hasta X km" — por ahora es informativo, no bloquea pedidos.
+- **Licencia de por vida ($7 USD)**: cada negocio arranca en `license_status = 'trial'` (14 días,
+  `src/lib/licensing.ts`). Al vencer, `/admin` bloquea todo detrás de `PaywallScreen` hasta que paguen.
+  El botón "Activar mi licencia" llama a `/api/checkout/license`, que crea un checkout de Lemon Squeezy
+  con `business_id` como custom data. Lemon Squeezy notifica el pago a
+  `/api/webhooks/lemonsqueezy` (firma verificada con `LEMONSQUEEZY_WEBHOOK_SECRET`), que marca
+  `license_status = 'active'`. Configura ese webhook en el dashboard de Lemon Squeezy apuntando a
+  `https://tu-dominio/api/webhooks/lemonsqueezy`, evento `order_created`.
 
 ## Contrato de datos para funcionalidad futura
 

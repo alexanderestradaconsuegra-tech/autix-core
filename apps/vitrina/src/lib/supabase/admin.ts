@@ -8,6 +8,14 @@ export interface PaymentSettings {
   mercadopagoEnabled: boolean;
 }
 
+export type LicenseStatus = 'trial' | 'active' | 'expired';
+
+/** Business + los campos de cuenta que solo el dueño necesita ver en /admin. */
+export interface OwnedBusiness extends Business {
+  licenseStatus: LicenseStatus;
+  createdAt: string;
+}
+
 interface BusinessRow {
   id: string;
   slug: string;
@@ -28,6 +36,8 @@ interface BusinessRow {
   address_lat: number | null;
   address_lng: number | null;
   delivery_radius_km: number | null;
+  license_status: LicenseStatus;
+  created_at: string;
 }
 
 interface CategoryRow {
@@ -56,9 +66,9 @@ interface PaymentSettingsRow {
 const BUSINESS_COLUMNS =
   'id, slug, name, phone, currency, logo_url, welcome_message, is_active, accepts_mercadopago, ' +
   'google_reviews_url, hero_image_url, hero_title, hero_subtitle, business_hours, has_physical_store, ' +
-  'address, address_lat, address_lng, delivery_radius_km';
+  'address, address_lat, address_lng, delivery_radius_km, license_status, created_at';
 
-function mapBusinessRow(row: BusinessRow): Business {
+function mapBusinessRow(row: BusinessRow): OwnedBusiness {
   return {
     id: row.id,
     slug: row.slug,
@@ -79,10 +89,12 @@ function mapBusinessRow(row: BusinessRow): Business {
     addressLat: row.address_lat,
     addressLng: row.address_lng,
     deliveryRadiusKm: row.delivery_radius_km !== null ? Number(row.delivery_radius_km) : null,
+    licenseStatus: row.license_status,
+    createdAt: row.created_at,
   };
 }
 
-export async function getOwnedBusiness(ownerId: string): Promise<Business | null> {
+export async function getOwnedBusiness(ownerId: string): Promise<OwnedBusiness | null> {
   const supabase = getSupabaseBrowserClient();
   const { data, error } = await supabase
     .from('businesses')
@@ -98,7 +110,7 @@ export async function getOwnedBusiness(ownerId: string): Promise<Business | null
 export async function createBusiness(
   ownerId: string,
   input: { slug: string; name: string; phone: string; currency: string },
-): Promise<Business> {
+): Promise<OwnedBusiness> {
   const supabase = getSupabaseBrowserClient();
   const { data, error } = await supabase
     .from('businesses')

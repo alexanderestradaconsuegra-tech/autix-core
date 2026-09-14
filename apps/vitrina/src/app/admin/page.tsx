@@ -8,8 +8,10 @@ import { CategoryManager } from '@/components/admin/CategoryManager';
 import { HeroSettingsForm, type HeroPatch } from '@/components/admin/HeroSettingsForm';
 import { MessagesTab } from '@/components/admin/MessagesTab';
 import { OrdersTab } from '@/components/admin/OrdersTab';
+import { PaywallScreen } from '@/components/admin/PaywallScreen';
 import { ProductForm, type ProductInput } from '@/components/admin/ProductForm';
 import { ProductList } from '@/components/admin/ProductList';
+import { TrialBanner } from '@/components/admin/TrialBanner';
 import {
   createBusiness,
   deleteProduct,
@@ -21,10 +23,12 @@ import {
   updateBusiness,
   upsertProduct,
   uploadProductImage,
+  type OwnedBusiness,
   type PaymentSettings,
 } from '@/lib/supabase/admin';
 import { getSupabaseBrowserClient } from '@/lib/supabase/client';
-import type { Business, Category, Product } from '@/lib/types';
+import { isLicenseActive } from '@/lib/licensing';
+import type { Category, Product } from '@/lib/types';
 
 const CURRENCIES = ['USD', 'EUR', 'CLP', 'MXN', 'COP', 'PEN', 'ARS', 'BRL'];
 
@@ -44,7 +48,7 @@ export default function AdminPage() {
 }
 
 function AdminDashboard({ session }: { session: Session }) {
-  const [business, setBusiness] = useState<Business | null>(null);
+  const [business, setBusiness] = useState<OwnedBusiness | null>(null);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState<'negocio' | 'productos' | 'pedidos' | 'mensajes'>('negocio');
 
@@ -73,6 +77,10 @@ function AdminDashboard({ session }: { session: Session }) {
     );
   }
 
+  if (!isLicenseActive(business)) {
+    return <PaywallScreen business={business} onSignOut={() => void handleSignOut()} />;
+  }
+
   return (
     <main className="min-h-dvh bg-neutral-50 pb-16">
       <header className="border-b border-neutral-200 bg-white px-4 py-3">
@@ -88,6 +96,7 @@ function AdminDashboard({ session }: { session: Session }) {
       </header>
 
       <div className="mx-auto max-w-2xl px-4 py-3">
+        {business.licenseStatus === 'trial' ? <TrialBanner business={business} /> : null}
         <div className="mb-4 flex gap-2 overflow-x-auto">
           {(
             [
@@ -125,7 +134,7 @@ function CreateBusinessForm({
   onSignOut,
 }: {
   ownerId: string;
-  onCreated: (business: Business) => void;
+  onCreated: (business: OwnedBusiness) => void;
   onSignOut: () => void;
 }) {
   const [name, setName] = useState('');
@@ -205,8 +214,8 @@ function BusinessTab({
   business,
   onBusinessUpdated,
 }: {
-  business: Business;
-  onBusinessUpdated: (business: Business) => void;
+  business: OwnedBusiness;
+  onBusinessUpdated: (business: OwnedBusiness) => void;
 }) {
   const [paymentSettings, setPaymentSettings] = useState<PaymentSettings>({
     mercadopagoAccessToken: null,
@@ -251,7 +260,7 @@ function BusinessTab({
   );
 }
 
-function ProductsTab({ business }: { business: Business }) {
+function ProductsTab({ business }: { business: OwnedBusiness }) {
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [editing, setEditing] = useState<Product | 'new' | null>(null);

@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import {
+  Check,
   CircleHelp,
   MessageCircle,
   Package,
@@ -87,7 +88,7 @@ export default function HomePage() {
             </a>
           </div>
           <p className="mt-3 text-xs text-neutral-400">
-            El catálogo y el carrito por WhatsApp son gratis. Mercado Pago es un plan pago aparte.
+            14 días gratis, sin tarjeta. Después, $7 USD de por vida — no es suscripción.
           </p>
         </div>
       </section>
@@ -128,6 +129,47 @@ export default function HomePage() {
                 <p className="mt-1 text-sm text-neutral-500">{feature.description}</p>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Precio */}
+      <section className="px-4 py-14">
+        <div className="mx-auto max-w-2xl">
+          <h2 className="text-center text-xl font-semibold text-neutral-900">Precio</h2>
+          <p className="mx-auto mt-1 max-w-sm text-center text-sm text-neutral-500">
+            Un pago, no una mensualidad. Pruébalo gratis dos semanas.
+          </p>
+
+          <div className="mt-8 rounded-2xl border border-neutral-200 bg-white p-6 text-center">
+            <p className="text-xs font-semibold uppercase tracking-wide text-emerald-600">Licencia de por vida</p>
+            <p className="mt-2 text-4xl font-bold text-neutral-900">
+              $7 <span className="text-base font-medium text-neutral-400">USD</span>
+            </p>
+            <p className="mt-1 text-sm text-neutral-500">Pago único. Sin mensualidad, sin límite de tiempo.</p>
+
+            <ul className="mx-auto mt-6 max-w-xs space-y-2 text-left">
+              {[
+                'Catálogo, carrito y pedido por WhatsApp',
+                'Seguimiento de entrega para tus clientes',
+                'Reseñas de Google y mensaje de ayuda',
+                'Productos, fotos y categorías ilimitadas',
+                'Cobro con Mercado Pago (tú usas tu propia cuenta)',
+              ].map((item) => (
+                <li key={item} className="flex items-start gap-2 text-sm text-neutral-700">
+                  <Check className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" />
+                  {item}
+                </li>
+              ))}
+            </ul>
+
+            <Link
+              href="/admin"
+              className="mt-6 inline-block w-full rounded-xl bg-emerald-600 px-6 py-3 text-sm font-semibold text-white active:bg-emerald-700 sm:w-auto"
+            >
+              Empezar prueba de 14 días
+            </Link>
+            <p className="mt-2 text-xs text-neutral-400">No pides tarjeta hasta que decidas quedarte.</p>
           </div>
         </div>
       </section>
