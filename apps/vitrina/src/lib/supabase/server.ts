@@ -1,5 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
-import type { Business, CatalogData, Category, Product } from '@/lib/types';
+import type { Business, BusinessHour, CatalogData, Category, Product } from '@/lib/types';
 
 function getSupabaseUrl(): string {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -34,7 +34,20 @@ interface BusinessRow {
   is_active: boolean;
   accepts_mercadopago: boolean;
   google_reviews_url: string | null;
+  hero_image_url: string | null;
+  hero_title: string | null;
+  hero_subtitle: string | null;
+  business_hours: BusinessHour[];
+  address: string | null;
+  address_lat: number | null;
+  address_lng: number | null;
+  delivery_radius_km: number | null;
 }
+
+export const BUSINESS_PUBLIC_COLUMNS =
+  'id, slug, name, phone, currency, logo_url, welcome_message, is_active, accepts_mercadopago, ' +
+  'google_reviews_url, hero_image_url, hero_title, hero_subtitle, business_hours, address, ' +
+  'address_lat, address_lng, delivery_radius_km';
 
 interface CategoryRow {
   id: string;
@@ -59,9 +72,7 @@ export async function getCatalogBySlug(slug: string): Promise<CatalogData | null
 
   const { data: businessRow, error: businessError } = await supabase
     .from('businesses')
-    .select(
-      'id, slug, name, phone, currency, logo_url, welcome_message, is_active, accepts_mercadopago, google_reviews_url',
-    )
+    .select(BUSINESS_PUBLIC_COLUMNS)
     .eq('slug', slug)
     .eq('is_active', true)
     .maybeSingle()
@@ -106,6 +117,14 @@ export async function getCatalogBySlug(slug: string): Promise<CatalogData | null
     isActive: businessRow.is_active,
     acceptsMercadopago: businessRow.accepts_mercadopago,
     googleReviewsUrl: businessRow.google_reviews_url,
+    heroImageUrl: businessRow.hero_image_url,
+    heroTitle: businessRow.hero_title,
+    heroSubtitle: businessRow.hero_subtitle,
+    businessHours: businessRow.business_hours,
+    address: businessRow.address,
+    addressLat: businessRow.address_lat,
+    addressLng: businessRow.address_lng,
+    deliveryRadiusKm: businessRow.delivery_radius_km !== null ? Number(businessRow.delivery_radius_km) : null,
   };
 
   const categories: Category[] = (categoriesResult.data ?? []).map((c) => ({

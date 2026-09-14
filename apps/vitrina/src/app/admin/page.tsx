@@ -4,6 +4,7 @@ import { useEffect, useState, type FormEvent } from 'react';
 import type { Session } from '@supabase/supabase-js';
 import { AdminAuthGate } from '@/components/admin/AdminAuthGate';
 import { BusinessSettingsForm } from '@/components/admin/BusinessSettingsForm';
+import { HeroSettingsForm, type HeroPatch } from '@/components/admin/HeroSettingsForm';
 import { MessagesTab } from '@/components/admin/MessagesTab';
 import { OrdersTab } from '@/components/admin/OrdersTab';
 import { ProductForm, type ProductInput } from '@/components/admin/ProductForm';
@@ -222,20 +223,30 @@ function BusinessTab({
   if (loading) return <p className="py-8 text-center text-sm text-neutral-400">Cargando...</p>;
 
   return (
-    <BusinessSettingsForm
-      business={business}
-      paymentSettings={paymentSettings}
-      onUploadLogo={(file) => uploadProductImage(business.id, file)}
-      onSaveBusiness={async (patch) => {
-        await updateBusiness(business.id, patch);
-        onBusinessUpdated({ ...business, ...patch });
-      }}
-      onSavePayment={async (settings) => {
-        await savePaymentSettings(business.id, settings);
-        setPaymentSettings(settings);
-        onBusinessUpdated({ ...business, acceptsMercadopago: settings.mercadopagoEnabled });
-      }}
-    />
+    <div className="space-y-6">
+      <BusinessSettingsForm
+        business={business}
+        paymentSettings={paymentSettings}
+        onUploadLogo={(file) => uploadProductImage(business.id, file)}
+        onSaveBusiness={async (patch) => {
+          await updateBusiness(business.id, patch);
+          onBusinessUpdated({ ...business, ...patch });
+        }}
+        onSavePayment={async (settings) => {
+          await savePaymentSettings(business.id, settings);
+          setPaymentSettings(settings);
+          onBusinessUpdated({ ...business, acceptsMercadopago: settings.mercadopagoEnabled });
+        }}
+      />
+      <HeroSettingsForm
+        business={business}
+        onUploadHeroImage={(file) => uploadProductImage(business.id, file)}
+        onSaveHero={async (patch: HeroPatch) => {
+          await updateBusiness(business.id, patch);
+          onBusinessUpdated({ ...business, ...patch });
+        }}
+      />
+    </div>
   );
 }
 

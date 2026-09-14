@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { getCatalogBySlug } from '@/lib/supabase/server';
 import { CatalogHeader } from '@/components/catalog/CatalogHeader';
+import { HeroSection } from '@/components/catalog/HeroSection';
 import { ProductGrid } from '@/components/catalog/ProductGrid';
 import { CartSheet } from '@/components/catalog/CartSheet';
 
@@ -37,6 +38,7 @@ export default async function CatalogPage({ params }: CatalogPageParams) {
   return (
     <main className="min-h-dvh bg-neutral-50">
       <CatalogHeader business={business} />
+      <HeroSection business={business} />
       <ProductGrid slug={slug} products={products} categories={categories} currency={business.currency} />
       <CartSheet business={business} />
     </main>

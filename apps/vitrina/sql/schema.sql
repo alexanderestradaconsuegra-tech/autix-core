@@ -24,6 +24,22 @@ create table if not exists businesses (
   -- Link de reseñas de Google del negocio (ej: g.page/r/.../review), se
   -- muestra en el catálogo público y tras confirmar un pedido.
   google_reviews_url text,
+  -- Hero del catálogo público: foto de portada + título/subtítulo propios
+  -- (distintos del logo circular y el nombre del header).
+  hero_image_url    text,
+  hero_title        text,
+  hero_subtitle     text,
+  -- Horario de atención, mostrado en el hero. Lista simple día/horario, ej:
+  -- [{"day": "Lunes a viernes", "time": "9:00 am - 7:00 pm"}].
+  business_hours    jsonb not null default '[]'::jsonb,
+  -- Dirección física + coordenadas (geocodificadas server-side con Google
+  -- Maps Geocoding API, ver src/app/api/geocode/route.ts) y radio de
+  -- entrega en km, informativo por ahora — no valida contra la dirección
+  -- del cliente todavía.
+  address           text,
+  address_lat       double precision,
+  address_lng       double precision,
+  delivery_radius_km numeric(6, 2) check (delivery_radius_km is null or delivery_radius_km > 0),
   created_at        timestamptz not null default now(),
   updated_at        timestamptz not null default now(),
   constraint slug_format check (slug ~ '^[a-z0-9]+(-[a-z0-9]+)*$'),

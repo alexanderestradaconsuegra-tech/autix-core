@@ -1,3 +1,8 @@
+export interface BusinessHour {
+  day: string;
+  time: string;
+}
+
 export interface Business {
   id: string;
   slug: string;
@@ -9,6 +14,14 @@ export interface Business {
   isActive: boolean;
   acceptsMercadopago: boolean;
   googleReviewsUrl: string | null;
+  heroImageUrl: string | null;
+  heroTitle: string | null;
+  heroSubtitle: string | null;
+  businessHours: BusinessHour[];
+  address: string | null;
+  addressLat: number | null;
+  addressLng: number | null;
+  deliveryRadiusKm: number | null;
 }
 
 export interface Category {

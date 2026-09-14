@@ -1,7 +1,7 @@
 'use client';
 
 import { getSupabaseBrowserClient } from '@/lib/supabase/client';
-import type { Business, Category, Product } from '@/lib/types';
+import type { Business, BusinessHour, Category, Product } from '@/lib/types';
 
 export interface PaymentSettings {
   mercadopagoAccessToken: string | null;
@@ -19,6 +19,14 @@ interface BusinessRow {
   is_active: boolean;
   accepts_mercadopago: boolean;
   google_reviews_url: string | null;
+  hero_image_url: string | null;
+  hero_title: string | null;
+  hero_subtitle: string | null;
+  business_hours: BusinessHour[];
+  address: string | null;
+  address_lat: number | null;
+  address_lng: number | null;
+  delivery_radius_km: number | null;
 }
 
 interface CategoryRow {
@@ -45,7 +53,9 @@ interface PaymentSettingsRow {
 }
 
 const BUSINESS_COLUMNS =
-  'id, slug, name, phone, currency, logo_url, welcome_message, is_active, accepts_mercadopago, google_reviews_url';
+  'id, slug, name, phone, currency, logo_url, welcome_message, is_active, accepts_mercadopago, ' +
+  'google_reviews_url, hero_image_url, hero_title, hero_subtitle, business_hours, address, ' +
+  'address_lat, address_lng, delivery_radius_km';
 
 function mapBusinessRow(row: BusinessRow): Business {
   return {
@@ -59,6 +69,14 @@ function mapBusinessRow(row: BusinessRow): Business {
     isActive: row.is_active,
     acceptsMercadopago: row.accepts_mercadopago,
     googleReviewsUrl: row.google_reviews_url,
+    heroImageUrl: row.hero_image_url,
+    heroTitle: row.hero_title,
+    heroSubtitle: row.hero_subtitle,
+    businessHours: row.business_hours,
+    address: row.address,
+    addressLat: row.address_lat,
+    addressLng: row.address_lng,
+    deliveryRadiusKm: row.delivery_radius_km !== null ? Number(row.delivery_radius_km) : null,
   };
 }
 
@@ -101,6 +119,14 @@ export async function updateBusiness(
     welcomeMessage: string | null;
     isActive: boolean;
     googleReviewsUrl: string | null;
+    heroImageUrl: string | null;
+    heroTitle: string | null;
+    heroSubtitle: string | null;
+    businessHours: BusinessHour[];
+    address: string | null;
+    addressLat: number | null;
+    addressLng: number | null;
+    deliveryRadiusKm: number | null;
   }>,
 ): Promise<void> {
   const supabase = getSupabaseBrowserClient();
@@ -112,6 +138,14 @@ export async function updateBusiness(
   if (patch.welcomeMessage !== undefined) row.welcome_message = patch.welcomeMessage;
   if (patch.isActive !== undefined) row.is_active = patch.isActive;
   if (patch.googleReviewsUrl !== undefined) row.google_reviews_url = patch.googleReviewsUrl;
+  if (patch.heroImageUrl !== undefined) row.hero_image_url = patch.heroImageUrl;
+  if (patch.heroTitle !== undefined) row.hero_title = patch.heroTitle;
+  if (patch.heroSubtitle !== undefined) row.hero_subtitle = patch.heroSubtitle;
+  if (patch.businessHours !== undefined) row.business_hours = patch.businessHours;
+  if (patch.address !== undefined) row.address = patch.address;
+  if (patch.addressLat !== undefined) row.address_lat = patch.addressLat;
+  if (patch.addressLng !== undefined) row.address_lng = patch.addressLng;
+  if (patch.deliveryRadiusKm !== undefined) row.delivery_radius_km = patch.deliveryRadiusKm;
 
   const { error } = await supabase.from('businesses').update(row).eq('id', businessId);
   if (error) throw new Error(error.message);

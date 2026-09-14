@@ -64,6 +64,11 @@ apps/vitrina/
   justo después de confirmar un pedido.
 - **Mensaje de ayuda**: botón "Ayuda" en el catálogo público — el cliente deja nombre + mensaje sin
   tener que agregar algo al carrito primero. Aparece en `/admin` → pestaña Mensajes.
+- **Hero del catálogo**: foto de portada, título, subtítulo y horario de atención, configurables desde
+  `/admin` → Negocio → Portada del catálogo. Se muestra entre el header y la grilla de productos.
+- **Dirección + radio de entrega**: el dueño ingresa su dirección y `/api/geocode` la geocodifica con
+  Google Maps Geocoding API (server-side, `GOOGLE_MAPS_API_KEY`) para guardar lat/lng. El radio en km
+  se muestra en el catálogo como "Entrega hasta X km" — por ahora es informativo, no bloquea pedidos.
 
 ## Contrato de datos para funcionalidad futura
 
