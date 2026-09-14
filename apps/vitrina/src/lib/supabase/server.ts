@@ -38,6 +38,7 @@ interface BusinessRow {
   hero_title: string | null;
   hero_subtitle: string | null;
   business_hours: BusinessHour[];
+  has_physical_store: boolean;
   address: string | null;
   address_lat: number | null;
   address_lng: number | null;
@@ -46,8 +47,8 @@ interface BusinessRow {
 
 export const BUSINESS_PUBLIC_COLUMNS =
   'id, slug, name, phone, currency, logo_url, welcome_message, is_active, accepts_mercadopago, ' +
-  'google_reviews_url, hero_image_url, hero_title, hero_subtitle, business_hours, address, ' +
-  'address_lat, address_lng, delivery_radius_km';
+  'google_reviews_url, hero_image_url, hero_title, hero_subtitle, business_hours, has_physical_store, ' +
+  'address, address_lat, address_lng, delivery_radius_km';
 
 interface CategoryRow {
   id: string;
@@ -121,6 +122,7 @@ export async function getCatalogBySlug(slug: string): Promise<CatalogData | null
     heroTitle: businessRow.hero_title,
     heroSubtitle: businessRow.hero_subtitle,
     businessHours: businessRow.business_hours,
+    hasPhysicalStore: businessRow.has_physical_store,
     address: businessRow.address,
     addressLat: businessRow.address_lat,
     addressLng: businessRow.address_lng,

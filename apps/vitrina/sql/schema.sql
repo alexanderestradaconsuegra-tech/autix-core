@@ -32,10 +32,12 @@ create table if not exists businesses (
   -- Horario de atención, mostrado en el hero. Lista simple día/horario, ej:
   -- [{"day": "Lunes a viernes", "time": "9:00 am - 7:00 pm"}].
   business_hours    jsonb not null default '[]'::jsonb,
-  -- Dirección física + coordenadas (geocodificadas server-side con Google
-  -- Maps Geocoding API, ver src/app/api/geocode/route.ts) y radio de
-  -- entrega en km, informativo por ahora — no valida contra la dirección
-  -- del cliente todavía.
+  -- Ubicación: solo relevante si el negocio tiene tienda física (no todo
+  -- catálogo la tiene). Dirección + coordenadas geocodificadas server-side
+  -- con Google Maps Geocoding API (ver src/app/api/geocode/route.ts) y
+  -- radio de entrega en km, informativo por ahora — no valida contra la
+  -- dirección del cliente todavía.
+  has_physical_store boolean not null default false,
   address           text,
   address_lat       double precision,
   address_lng       double precision,

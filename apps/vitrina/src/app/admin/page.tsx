@@ -4,6 +4,7 @@ import { useEffect, useState, type FormEvent } from 'react';
 import type { Session } from '@supabase/supabase-js';
 import { AdminAuthGate } from '@/components/admin/AdminAuthGate';
 import { BusinessSettingsForm } from '@/components/admin/BusinessSettingsForm';
+import { CategoryManager } from '@/components/admin/CategoryManager';
 import { HeroSettingsForm, type HeroPatch } from '@/components/admin/HeroSettingsForm';
 import { MessagesTab } from '@/components/admin/MessagesTab';
 import { OrdersTab } from '@/components/admin/OrdersTab';
@@ -292,6 +293,7 @@ function ProductsTab({ business }: { business: Business }) {
 
   return (
     <div className="space-y-3">
+      <CategoryManager businessId={business.id} categories={categories} onChanged={reload} />
       <button
         type="button"
         onClick={() => setEditing('new')}

@@ -18,6 +18,7 @@ export interface Business {
   heroTitle: string | null;
   heroSubtitle: string | null;
   businessHours: BusinessHour[];
+  hasPhysicalStore: boolean;
   address: string | null;
   addressLat: number | null;
   addressLng: number | null;

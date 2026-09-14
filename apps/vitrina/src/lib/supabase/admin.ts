@@ -23,6 +23,7 @@ interface BusinessRow {
   hero_title: string | null;
   hero_subtitle: string | null;
   business_hours: BusinessHour[];
+  has_physical_store: boolean;
   address: string | null;
   address_lat: number | null;
   address_lng: number | null;
@@ -54,8 +55,8 @@ interface PaymentSettingsRow {
 
 const BUSINESS_COLUMNS =
   'id, slug, name, phone, currency, logo_url, welcome_message, is_active, accepts_mercadopago, ' +
-  'google_reviews_url, hero_image_url, hero_title, hero_subtitle, business_hours, address, ' +
-  'address_lat, address_lng, delivery_radius_km';
+  'google_reviews_url, hero_image_url, hero_title, hero_subtitle, business_hours, has_physical_store, ' +
+  'address, address_lat, address_lng, delivery_radius_km';
 
 function mapBusinessRow(row: BusinessRow): Business {
   return {
@@ -73,6 +74,7 @@ function mapBusinessRow(row: BusinessRow): Business {
     heroTitle: row.hero_title,
     heroSubtitle: row.hero_subtitle,
     businessHours: row.business_hours,
+    hasPhysicalStore: row.has_physical_store,
     address: row.address,
     addressLat: row.address_lat,
     addressLng: row.address_lng,
@@ -123,6 +125,7 @@ export async function updateBusiness(
     heroTitle: string | null;
     heroSubtitle: string | null;
     businessHours: BusinessHour[];
+    hasPhysicalStore: boolean;
     address: string | null;
     addressLat: number | null;
     addressLng: number | null;
@@ -142,6 +145,7 @@ export async function updateBusiness(
   if (patch.heroTitle !== undefined) row.hero_title = patch.heroTitle;
   if (patch.heroSubtitle !== undefined) row.hero_subtitle = patch.heroSubtitle;
   if (patch.businessHours !== undefined) row.business_hours = patch.businessHours;
+  if (patch.hasPhysicalStore !== undefined) row.has_physical_store = patch.hasPhysicalStore;
   if (patch.address !== undefined) row.address = patch.address;
   if (patch.addressLat !== undefined) row.address_lat = patch.addressLat;
   if (patch.addressLng !== undefined) row.address_lng = patch.addressLng;
@@ -197,6 +201,24 @@ export async function listCategories(businessId: string): Promise<Category[]> {
 
   if (error) throw new Error(error.message);
   return (data ?? []).map((c) => ({ id: c.id, name: c.name, sortOrder: c.sort_order }));
+}
+
+export async function createCategory(businessId: string, name: string, sortOrder: number): Promise<void> {
+  const supabase = getSupabaseBrowserClient();
+  const { error } = await supabase
+    .from('categories')
+    .insert({ business_id: businessId, name, sort_order: sortOrder });
+  if (error) throw new Error(error.message);
+}
+
+/**
+ * `products.category_id` tiene `on delete set null` (ver sql/schema.sql):
+ * borrar una categoría no borra sus productos, solo los deja sin categoría.
+ */
+export async function deleteCategory(categoryId: string): Promise<void> {
+  const supabase = getSupabaseBrowserClient();
+  const { error } = await supabase.from('categories').delete().eq('id', categoryId);
+  if (error) throw new Error(error.message);
 }
 
 export async function listAllProducts(businessId: string): Promise<Product[]> {

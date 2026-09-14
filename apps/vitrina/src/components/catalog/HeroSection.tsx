@@ -7,9 +7,10 @@ export function HeroSection({ business }: { business: Business }) {
   const hasTitle = Boolean(business.heroTitle);
   const hasSubtitle = Boolean(business.heroSubtitle);
   const hasHours = business.businessHours.length > 0;
-  const hasRadius = business.deliveryRadiusKm !== null;
+  const hasAddress = business.hasPhysicalStore && Boolean(business.address);
+  const hasRadius = business.hasPhysicalStore && business.deliveryRadiusKm !== null;
 
-  if (!hasHeroImage && !hasTitle && !hasSubtitle && !hasHours && !hasRadius) return null;
+  if (!hasHeroImage && !hasTitle && !hasSubtitle && !hasHours && !hasAddress && !hasRadius) return null;
 
   return (
     <section className="border-b border-neutral-200 bg-white">
@@ -32,6 +33,13 @@ export function HeroSection({ business }: { business: Business }) {
               </li>
             ))}
           </ul>
+        ) : null}
+
+        {hasAddress ? (
+          <p className="flex items-center gap-1 text-xs text-neutral-600">
+            <MapPin className="h-3 w-3 shrink-0 text-neutral-400" />
+            {business.address}
+          </p>
         ) : null}
 
         {hasRadius ? (

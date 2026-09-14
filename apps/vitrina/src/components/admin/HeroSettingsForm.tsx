@@ -11,6 +11,7 @@ export interface HeroPatch {
   heroTitle: string | null;
   heroSubtitle: string | null;
   businessHours: BusinessHour[];
+  hasPhysicalStore: boolean;
   address: string | null;
   addressLat: number | null;
   addressLng: number | null;
@@ -32,6 +33,7 @@ export function HeroSettingsForm({
   const [hours, setHours] = useState<BusinessHour[]>(
     business.businessHours.length > 0 ? business.businessHours : [{ day: 'Lunes a sábado', time: '9:00 am - 7:00 pm' }],
   );
+  const [hasPhysicalStore, setHasPhysicalStore] = useState(business.hasPhysicalStore);
   const [address, setAddress] = useState(business.address ?? '');
   const [addressLat, setAddressLat] = useState<number | null>(business.addressLat);
   const [addressLng, setAddressLng] = useState<number | null>(business.addressLng);
@@ -104,10 +106,11 @@ export function HeroSettingsForm({
         heroTitle: heroTitle.trim() || null,
         heroSubtitle: heroSubtitle.trim() || null,
         businessHours: hours.filter((h) => h.day.trim() || h.time.trim()),
-        address: address.trim() || null,
-        addressLat,
-        addressLng,
-        deliveryRadiusKm: parsedRadius,
+        hasPhysicalStore,
+        address: hasPhysicalStore ? address.trim() || null : null,
+        addressLat: hasPhysicalStore ? addressLat : null,
+        addressLng: hasPhysicalStore ? addressLng : null,
+        deliveryRadiusKm: hasPhysicalStore ? parsedRadius : null,
       });
       setSaved(true);
     } catch (err) {
@@ -200,61 +203,74 @@ export function HeroSettingsForm({
         </button>
       </div>
 
-      <div>
-        <label htmlFor="hero-address" className="mb-1 block text-xs font-medium text-neutral-600">
-          Dirección del negocio
-        </label>
-        <div className="flex gap-2">
-          <input
-            id="hero-address"
-            value={address}
-            onChange={(e) => {
-              setAddress(e.target.value);
-              setAddressLat(null);
-              setAddressLng(null);
-              setGeocodeNotice(null);
-            }}
-            placeholder="Cra 15 #12-34, Bogotá"
-            className="min-w-0 flex-1 rounded-lg border border-neutral-200 px-3 py-2 text-sm outline-none focus:border-emerald-500"
-          />
-          <button
-            type="button"
-            onClick={() => void handleGeocode()}
-            disabled={geocoding}
-            className="flex shrink-0 items-center gap-1 rounded-lg border border-neutral-200 px-3 py-2 text-xs font-semibold text-neutral-700 disabled:opacity-60"
-          >
-            <MapPin className="h-3.5 w-3.5" />
-            {geocoding ? 'Buscando...' : 'Ubicar'}
-          </button>
-        </div>
-        {geocodeError ? <p className="mt-1 text-xs font-medium text-red-500">{geocodeError}</p> : null}
-        {geocodeNotice ? <p className="mt-1 text-xs font-medium text-emerald-600">{geocodeNotice}</p> : null}
-        {!geocodeNotice && addressLat !== null && addressLng !== null ? (
-          <p className="mt-1 text-xs text-neutral-400">
-            Ubicado: {addressLat.toFixed(5)}, {addressLng.toFixed(5)}
-          </p>
-        ) : null}
-      </div>
-
-      <div>
-        <label htmlFor="hero-radius" className="mb-1 block text-xs font-medium text-neutral-600">
-          Radio de entrega (km, opcional)
-        </label>
+      <label className="flex items-center gap-2 border-t border-neutral-100 pt-3 text-xs font-medium text-neutral-600">
         <input
-          id="hero-radius"
-          type="number"
-          min="0.1"
-          step="0.1"
-          value={radiusKm}
-          onChange={(e) => setRadiusKm(e.target.value)}
-          placeholder="5"
-          className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm outline-none focus:border-emerald-500"
+          type="checkbox"
+          checked={hasPhysicalStore}
+          onChange={(e) => setHasPhysicalStore(e.target.checked)}
         />
-        <p className="mt-1 text-xs text-neutral-400">
-          Se muestra como &ldquo;Entrega hasta X km&rdquo; en el catálogo. Por ahora es informativo, no bloquea
-          pedidos fuera del radio.
-        </p>
-      </div>
+        Tenemos tienda física (un local al que los clientes pueden ir)
+      </label>
+
+      {hasPhysicalStore ? (
+        <>
+          <div>
+            <label htmlFor="hero-address" className="mb-1 block text-xs font-medium text-neutral-600">
+              Dirección del negocio
+            </label>
+            <div className="flex gap-2">
+              <input
+                id="hero-address"
+                value={address}
+                onChange={(e) => {
+                  setAddress(e.target.value);
+                  setAddressLat(null);
+                  setAddressLng(null);
+                  setGeocodeNotice(null);
+                }}
+                placeholder="Cra 15 #12-34, Bogotá"
+                className="min-w-0 flex-1 rounded-lg border border-neutral-200 px-3 py-2 text-sm outline-none focus:border-emerald-500"
+              />
+              <button
+                type="button"
+                onClick={() => void handleGeocode()}
+                disabled={geocoding}
+                className="flex shrink-0 items-center gap-1 rounded-lg border border-neutral-200 px-3 py-2 text-xs font-semibold text-neutral-700 disabled:opacity-60"
+              >
+                <MapPin className="h-3.5 w-3.5" />
+                {geocoding ? 'Buscando...' : 'Ubicar'}
+              </button>
+            </div>
+            {geocodeError ? <p className="mt-1 text-xs font-medium text-red-500">{geocodeError}</p> : null}
+            {geocodeNotice ? <p className="mt-1 text-xs font-medium text-emerald-600">{geocodeNotice}</p> : null}
+            {!geocodeNotice && addressLat !== null && addressLng !== null ? (
+              <p className="mt-1 text-xs text-neutral-400">
+                Ubicado: {addressLat.toFixed(5)}, {addressLng.toFixed(5)}
+              </p>
+            ) : null}
+          </div>
+
+          <div>
+            <label htmlFor="hero-radius" className="mb-1 block text-xs font-medium text-neutral-600">
+              Radio de entrega (km, opcional)
+            </label>
+            <input
+              id="hero-radius"
+              type="number"
+              min="0.1"
+              step="0.1"
+              value={radiusKm}
+              onChange={(e) => setRadiusKm(e.target.value)}
+              placeholder="5"
+              className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm outline-none focus:border-emerald-500"
+            />
+            <p className="mt-1 text-xs text-neutral-400">
+              Se muestra como &ldquo;Entrega hasta X km&rdquo; en el catálogo. Por ahora es informativo, no bloquea
+              pedidos fuera del radio.
+            </p>
+          </div>
+        </>
+      ) : null}
 
       {saveError ? <p className="text-xs font-medium text-red-500">{saveError}</p> : null}
       {saved ? <p className="text-xs font-medium text-emerald-600">Cambios guardados.</p> : null}
